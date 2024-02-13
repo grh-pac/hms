@@ -7,6 +7,8 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const Appointment  = require('../models/appointment');
 
+const ensureAuthentication = passport.ensureAuthenticated 
+
 router.get('/', (req, res) => {
   res.render('index', { message: "nothing" });
 });
@@ -35,7 +37,7 @@ router.post('/register/patient', async(req, res) => {
 
         })
         await newPatient.save()
-        res.redirect('index')
+        res.redirect('/patient/login')
     }catch(err){
         console.log(err)
     }
@@ -68,31 +70,36 @@ router.post('/register/doctor', async(req, res) => {
         console.log(err)
     };
 });
+
 router.post('/register/admin', async(req, res) => {
     try{
         const username = req.body.username;
-        const password = req.body.password
-        console.log(username, password)
+        const password = req.body.password;
+        
         const patients = await Patient.find().exec();
         const doctors = await Doctor.find().exec();
-        console.log(doctors)
+        const appointments = await Appointment.find()
+        .populate('patient')
+        .populate('doctor')
+        .exec();
+
+        
         
         const existingUsername = await Admin.findOne({ username: username });
 
 
         if(existingUsername.username === username && existingUsername.password === password){
-            
+            res.render('admin-panel',{
+                patients,
+                doctors,
+                appointments
+            })     
         }
-        res.render('admin-panel',{
-                        patients,
-                        doctors
-            })
-
     
        
     }catch(err){
         console.log(err)
-    }
+    };
 
 });
 
@@ -125,6 +132,8 @@ router.post('/patient/login', passport.authenticate('patient', {
     failureRedirect: '/patient/login',
     failureFlash: true
 }));
+
+
 router.post('/appointments/create', async(req,res)=>{
     try{
         const {doctorName,appointmentTime,appointmentDate,hiddenField} = req.body
@@ -155,7 +164,16 @@ router.post('/appointments/create', async(req,res)=>{
     }catch(err){
         console.log(err)
     }
-})
+});
+
+router.get('/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur lors de la déconnexion" });
+        }
+        res.redirect('/'); // Redirection vers la page de connexion après la déconnexion
+    });
+});
 
 
 // Ajoutez vos autres routes ici
