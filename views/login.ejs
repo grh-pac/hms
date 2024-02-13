@@ -1,0 +1,19 @@
+<%- include('layouts/header') %>
+<div id="loginForm" class="col-md-3">
+    <h2>Patient Login</h2>
+    <form action="/patient/login" method="post">
+        <!-- Email -->
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="text" class="form-control" id="email" name="email">
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Login as Patient</button>
+    </form>
+</div>
