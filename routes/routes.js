@@ -6,6 +6,7 @@ const Doctor = require('../models/doctor');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const Appointment  = require('../models/appointment');
+const Prescription  = require('../models/prescription');
 
 const ensureAuthentication = passport.ensureAuthenticated 
 
@@ -174,6 +175,62 @@ router.get('/logout', (req, res) => {
         res.redirect('/'); // Redirection vers la page de connexion après la déconnexion
     });
 });
+
+router.post('/doctor-login', passport.authenticate('doctor', {
+        successRedirect: '/doctor-pannel',
+        failureRedirect: '/',
+        failureFlash: true
+}));
+
+router.get('/doctor-pannel', ensureAuthentication, async (req, res) => {
+    try {
+      const email = req.user.email;
+      const existingDoctor = await Doctor.findOne({ email: email });
+  
+      if (!existingDoctor) {
+        return res.status(404).send('Doctor not found');
+      }
+  
+      const doctorId = existingDoctor._id;
+      const appointments = await Appointment.find({ doctor: doctorId })
+        .populate('patient')
+        .populate('doctor')
+        .exec();
+  
+      if (appointments.length > 0) {
+        const prescriptions = [];
+        appointments.forEach(appointment => {
+          const newPrescription = new Prescription({
+            patientName: appointment.patient.firstName,
+            appointmentDate: appointment.date,
+            email: appointment.patient.email,
+            doctor: doctorId, 
+            
+          });
+  
+          prescriptions.push(newPrescription.save());
+          console.log('Prescription created for appointment ID:', appointment._id);
+        });
+  
+        // Wait for all prescriptions to be saved before rendering the response
+        await Promise.all(prescriptions);
+      } else {
+        console.log('No appointments found for the specified doctor ID.');
+      }
+      const prescriptions = await Prescription.find({ doctor: doctorId }).exec();
+      console.log(prescriptions)
+      res.render('doctor-pannel', {
+        appointments,
+        prescriptions,
+        name: existingDoctor.doctorname,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+  
+  module.exports = router;
 
 
 // Ajoutez vos autres routes ici

@@ -1,0 +1,169 @@
+<%- include('layouts/header') %>
+
+<div class="container-fluid mt-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="sidebar">
+        <ul class="list-group">
+          <li class="list-group-item active" aria-current="true" onclick="showDashboard()">Dashboard</li>
+          <li class="list-group-item" onclick="appointment()">Appointment</li>
+          <li class="list-group-item" onclick="prescriptionF()">Prescriptions</li>
+  
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+      <h1>Welcome <%=name %></h1>
+
+    
+
+      <div id="dashboard" style="display: none;">
+       patientList
+      </div>
+
+      <div id="DoctorList" style="display: none;">
+        <div class="container mt-5">
+          doctorList
+        </div>
+      </div>
+
+      <div id="patientForm" style="display: none;">
+        <h2>Appointment List</h2>
+        <!-- Content for appointment list goes here -->
+        <div class="container mt-5">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="table-responsive table-fixed-header">
+                  <% if (appointments && appointments.length > 0) { %>
+                    <table class="table table-striped">
+                      <thead class="sticky-top">
+                        <tr>
+                          <th>#</th>
+                          <th>Doctor Name</th>
+                          <th>Specialization</th>                             
+                          <th>Email</th>
+                          <th>Patient Name</th>
+                          <th>Patient Tel</th>                             
+                          <th>Patient Email</th>
+                          <th>Fees</th>
+                          <th>Gender</th>
+                          <th>Date</th>
+                          <th>Status</th>
+  
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <% appointments.forEach((appointment, index) => { %>
+                          <tr>
+                                      <td><%= index + 1 %></td>
+                                      <td><%= appointment.doctor.doctorname %></td>
+                                      <td><%= appointment.doctor.spec %></td>
+                                      <td><%= appointment.doctor.email %></td>
+                                      <td><%= appointment.patient.firstName %></td>
+                                      <td><%= appointment.patient.phoneNumber %></td>
+                                      <td><%= appointment.patient.email %></td>
+                                      <td><%= appointment.doctor.docFees %></td>
+                                      <td><%= appointment.patient.gender %></td>
+                                      <td><%= appointment.date.toDateString() %></td>
+                                      <td><%= appointment.status %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  <% } else { %>
+                    <p>No Records found</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+   
+  
+        <div id="prescription" style="display: none;">
+          <div class="container mt-5">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="table-responsive table-fixed-header">
+                  <% if (prescriptions && prescriptions.length > 0) { %>
+                    <table class="table table-striped">
+                      <thead class="sticky-top">
+                        <tr>
+                          <th>#</th>
+                          <th>Patient Name</th>
+                          <th>Patient Email</th>                             
+                          <th>Date</th>
+                          <th>Disease</th>
+                          <th>Allergy</th>                             
+                          <th>Prescribe</th>
+                        
+  
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <% prescriptions.forEach((prescription, index) => { %>
+                          <tr>
+                                      <td><%= index + 1 %></td>
+                                      <td><%= prescription.patientName %></td>
+                                      <td><%= prescription.email %></td>
+                                      <td><%= prescription.appointmentDate.toDateString() %></td>
+                                      <td><%= prescription.disease %></td>
+                                      <td><%= prescription.allergy %></td>
+                                      <td><%= prescription.prescribe %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  <% } else { %>
+                    <p>No Records found</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function showDashboard() {
+    hideAll();
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  function appointment() {
+    hideAll();
+    document.getElementById('patientForm').style.display = 'block';
+  }
+
+
+
+  function prescriptionF() {
+    hideAll();
+    document.getElementById('prescription').style.display = 'block';
+  }
+
+ 
+
+  function hideAll() {
+    const elements = ['dashboard', 'patientForm', 'prescription'];
+    elements.forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+
+  $(document).ready(function () {
+    $('.list-group-item').click(function () {
+      $('.list-group-item').removeClass('active');
+      $(this).addClass('active');
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7
