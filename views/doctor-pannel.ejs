@@ -52,6 +52,8 @@
                           <th>Gender</th>
                           <th>Date</th>
                           <th>Status</th>
+                          <th>Set Status</th>
+                          <th>Prescribe</th>
   
                       </tr>
                       </thead>
@@ -69,6 +71,14 @@
                                       <td><%= appointment.patient.gender %></td>
                                       <td><%= appointment.date.toDateString() %></td>
                                       <td><%= appointment.status %></td>
+                                      <td>
+                                        <a href="/edit/<%=  %>" class="text-success">Status</a>
+                                    </td>
+                                    <td>
+                                        
+                                        <a href="/doctor/pres/<%= appointment.doctor._id %>/<%= appointment.patient._id %>" class="text-danger">Prescribe</a>
+
+                                    </td>
                           </tr>
                         <% }) %>
                       </tbody>
@@ -100,6 +110,7 @@
                           <th>Disease</th>
                           <th>Allergy</th>                             
                           <th>Prescribe</th>
+                       
                         
   
                       </tr>

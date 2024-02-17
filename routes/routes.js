@@ -112,14 +112,19 @@ router.get('/register/patient', passport.ensureAuthenticated, async (req, res) =
 
         const patients = await Patient.find().exec();
         const doctors = await Doctor.find().exec();
-        const user = await Patient.findOne({ email: email });
-        console.log(user)
+        const patient = await Patient.findOne({ email: email });
+        const appointments = await Appointment.find({ patient: patient._id }).populate('patient').populate('doctor').exec();
+        const specficPrescription = await Prescription.findOne({ email: email });
+        console.log(typeof appointments);
+
 
         res.render('patient-pannel', {
             doctors,
             patients,
             email: email,
-            name: user.firstName 
+            name: patient.firstName,
+            appointments, 
+            specficPrescription,
         });
     } catch (err) {
         console.error(err);
@@ -197,26 +202,26 @@ router.get('/doctor-pannel', ensureAuthentication, async (req, res) => {
         .populate('doctor')
         .exec();
   
-      if (appointments.length > 0) {
-        const prescriptions = [];
-        appointments.forEach(appointment => {
-          const newPrescription = new Prescription({
-            patientName: appointment.patient.firstName,
-            appointmentDate: appointment.date,
-            email: appointment.patient.email,
-            doctor: doctorId, 
+    //   if (appointments.length > 0) {
+    //     const prescriptions = [];
+    //     appointments.forEach(appointment => {
+    //       const newPrescription = new Prescription({
+    //         patientName: appointment.patient.firstName,
+    //         appointmentDate: appointment.date,
+    //         email: appointment.patient.email,
+    //         doctor: doctorId, 
             
-          });
+    //       });
   
-          prescriptions.push(newPrescription.save());
-          console.log('Prescription created for appointment ID:', appointment._id);
-        });
+    //       prescriptions.push(newPrescription.save());
+    //       console.log('Prescription created for appointment ID:', appointment._id);
+    //     });
   
-        // Wait for all prescriptions to be saved before rendering the response
-        await Promise.all(prescriptions);
-      } else {
-        console.log('No appointments found for the specified doctor ID.');
-      }
+    //     // Wait for all prescriptions to be saved before rendering the response
+    //     await Promise.all(prescriptions);
+    //   } else {
+    //     console.log('No appointments found for the specified doctor ID.');
+    //   }
       const prescriptions = await Prescription.find({ doctor: doctorId }).exec();
       console.log(prescriptions)
       res.render('doctor-pannel', {
@@ -228,9 +233,55 @@ router.get('/doctor-pannel', ensureAuthentication, async (req, res) => {
       console.error(err);
       res.status(500).send('Internal Server Error');
     }
-  });
+});
+
+router.get('/doctor/pres/:doctorId/:patientId', async(req,res)=>{
+
+    const doctorId = req.params.doctorId;
+    const patientId = req.params.patientId;
+   
   
-  module.exports = router;
+
+    res.render('prescription', {doctorId, patientId});
+
+});
+
+router.post('/doctor/pres/', async (req, res) => {
+    try {
+      const patientId = req.body.patientId;
+      const doctorId = req.body.doctorId;
+      const {allergy, disease, prescribe} = req.body;
+
+      const appointment = await Appointment.findOne({patient: patientId}).populate('patient').populate('doctor').exec();
+
+      
+      
+
+
+  
+      if (!appointment) {
+        return res.status(404).send('Patient and Doctor not found');
+      }
+      const currentDate = new Date();
+      const newPrescription = new Prescription({
+                patientName: appointment.patient.firstName,
+                appointmentDate: currentDate.toString(),
+                email: appointment.patient.email,
+                doctor: appointment.doctor._id, 
+                allergy: allergy,
+                prescribe: prescribe,
+                disease:disease,
+                
+              });
+        await newPrescription.save()
+      
+      res.redirect('/doctor-pannel')
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
 
 
 // Ajoutez vos autres routes ici

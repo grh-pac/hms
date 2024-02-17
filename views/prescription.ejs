@@ -1,0 +1,27 @@
+<%- include('layouts/header') %>
+<div id="prescriptionForm" class="col-md-3">
+    <h2>Prescription</h2>
+    <form action="/doctor/pres/" method="post">
+       
+        <div class="mb-3">
+            <label for="disease" class="form-label">Disease</label>
+            <textarea class="form-control" id="email" name="disease"></textarea>
+        </div>
+
+       
+        <div class="mb-3">
+            <label for="allergy" class="form-label">Allergy</label>
+            <textarea class="form-control" id="allergy" name="allergy"></textarea>
+        </div>
+
+        <input type="hidden" id="hiddenField" name="doctorId" value="<%=doctorId  %>">
+        <input type="hidden" id="hiddenField" name="patientId" value="<%=patientId  %>">
+
+        <div class="mb-3">
+            <label for="prescribe" class="form-label">Prescription</label>
+            <textarea class="form-control" id="prescribe" name="prescribe"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Prescribe</button>
+    </form>
+</div>
